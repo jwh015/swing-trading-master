@@ -31,13 +31,10 @@ def master_score(df, spy_df):
         sma200 = df['Close'].rolling(200).mean().iloc[-1]
         
         score = 0
-        # Trend (40 points)
         if pd.notna(sma50) and pd.notna(sma200) and sma50 > sma200 and close > sma50:
             score += 40
-        # Momentum (30 points)
         if pd.notna(sma20) and close > sma20:
             score += 30
-        # Relative Strength vs SPY (30 points)
         if len(df) > 22 and len(spy_df) > 22:
             rel_strength = (close / spy_df['Close'].iloc[-1]) / (df['Close'].iloc[-22] / spy_df['Close'].iloc[-22])
             if rel_strength > 1:
