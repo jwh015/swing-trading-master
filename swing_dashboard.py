@@ -1,4 +1,4 @@
-import streamlit as st
+lol import streamlit as st
 import yfinance as yf
 import pandas as pd
 
@@ -67,4 +67,4 @@ st.dataframe(
 )
 
 st.success("✅ Master Dashboard is now LIVE!")
-st.caption("11 Sectors • Pull down to refresh • Bookmark this page")
+st.st.caption("11 Sectors • Pull down to refresh • Bookmark this page ✅")
