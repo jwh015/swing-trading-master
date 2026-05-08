@@ -61,10 +61,14 @@ for sector, ticker in sector_etfs.items():
 
 df_summary = pd.DataFrame(data).sort_values("Master Score", ascending=False)
 
+# Fix mixed types for pyarrow
+df_summary["Master Score"] = pd.to_numeric(df_summary["Master Score"], errors='coerce').fillna(50)
+df_summary["1D %"] = pd.to_numeric(df_summary["1D %"], errors='coerce').fillna(0)
+
 st.dataframe(
     df_summary.style.background_gradient(cmap='RdYlGn', subset=['Master Score']),
     use_container_width=True
 )
 
 st.success("✅ Master Dashboard is now LIVE!")
-st.st.caption("11 Sectors • Pull down to refresh • Bookmark this page ✅")
+st.caption("11 Sectors • Pull down to refresh • Bookmark this page ✅")
