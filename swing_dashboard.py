@@ -6,7 +6,7 @@ st.set_page_config(page_title="Swing Trading Master Dashboard", layout="wide", p
 st.title("🧭 MASTER Dashboard")
 st.markdown("**Live on iPhone • Master Score • Sector Rotation**")
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=60)   # shortened to 60 seconds so it refreshes faster
 def get_data(ticker, period="5y"):
     df = yf.download(ticker, period=period, progress=False)
     return df.dropna()
@@ -22,7 +22,7 @@ sector_etfs = {
 spy = get_data("SPY")
 
 def master_score(df, spy_df):
-    if len(df) < 200 or len(spy_df) < 50:
+    if len(df) < 100 or len(spy_df) < 50:   # lowered threshold so it works sooner
         return 50.0
     try:
         close = df['Close'].iloc[-1]
@@ -61,7 +61,7 @@ for sector, ticker in sector_etfs.items():
 
 df_summary = pd.DataFrame(data).sort_values("Master Score", ascending=False)
 
-# Fix mixed types for pyarrow
+# Fix any mixed-type issues
 df_summary["Master Score"] = pd.to_numeric(df_summary["Master Score"], errors='coerce').fillna(50)
 df_summary["1D %"] = pd.to_numeric(df_summary["1D %"], errors='coerce').fillna(0)
 
@@ -69,6 +69,10 @@ st.dataframe(
     df_summary.style.background_gradient(cmap='RdYlGn', subset=['Master Score']),
     use_container_width=True
 )
+
+if st.button("🔄 Refresh Market Data Now"):
+    st.cache_data.clear()
+    st.success("Data refreshed! Waiting for new numbers...")
 
 st.success("✅ Master Dashboard is now LIVE!")
 st.caption("11 Sectors • Pull down to refresh • Bookmark this page ✅")
