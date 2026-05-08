@@ -1,3 +1,4 @@
+# V3 - Fixed pyarrow error May 2026
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -25,7 +26,7 @@ def master_score(df, spy_df):
     if len(df) < 200 or len(spy_df) < 50:
         return 50.0
     latest = df.iloc[-1]
-    score = 0
+    score = 0.0
     sma20 = df['Close'].rolling(20).mean().iloc[-1]
     sma50 = df['Close'].rolling(50).mean().iloc[-1]
     sma200 = df['Close'].rolling(200).mean().iloc[-1]
@@ -46,7 +47,7 @@ for sector, ticker in sector_etfs.items():
     df = get_data(ticker)
     score = master_score(df, spy)
     latest = df.iloc[-1]
-    ret_1d = (latest['Close'] / df.iloc[-2]['Close'] - 1) * 100 if len(df) > 1 else 0
+    ret_1d = (latest['Close'] / df.iloc[-2]['Close'] - 1) * 100 if len(df) > 1 else 0.0
     trend = "🟢 STRONG" if score >= 70 else "🟡 Watch" if score >= 50 else "🔴 Weak"
     data.append({
         "Sector": sector,
@@ -56,7 +57,16 @@ for sector, ticker in sector_etfs.items():
     })
 
 df_summary = pd.DataFrame(data).sort_values("Master Score", ascending=False)
-st.dataframe(df_summary.style.background_gradient(cmap='RdYlGn', subset=['Master Score']), use_container_width=True)
 
-st.success("✅ Master Dashboard is now LIVE and working!")
-st.caption("Pull down to refresh for live market data • Bookmark this page")
+# FIX for pyarrow error
+df_summary["Master Score"] = pd.to_numeric(df_summary["Master Score"], errors='coerce').fillna(50)
+df_summary["1D %"] = pd.to_numeric(df_summary["1D %"], errors='coerce').fillna(0)
+
+st.dataframe(
+    df_summary.style.background_gradient(cmap='RdYlGn', subset=['Master Score']),
+    use_container_width=True,
+    hide_index=True
+)
+
+st.success("✅ Master Dashboard is now LIVE and FIXED!")
+st.caption("Pull down to refresh • Bookmark this page")
